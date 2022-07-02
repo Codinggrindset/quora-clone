@@ -9,4 +9,4 @@ app.use(express.json())
 app.use('', router)
 
 
-app.listen(process.env.SERVERPORT, ()=>console.log('connected to the server'))
+app.listen(process.env.PORT, ()=>console.log('connected to the server'))
