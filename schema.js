@@ -1,41 +1,46 @@
-const mongoose = require('mongoose')
-const { isEmail } = require('validator')
-const bcrypt = require('bcrypt')
-const Schema = mongoose.Schema
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
+const { Schema } = mongoose;
 const acc = new Schema({
-    Firstname: {
-        type: String,
-        required: [true, 'please input firstname']
+  data: {
+    Profile: {
+      id: {},
+      Lastname: {},
+      Firstname: {},
     },
+  },
 
-    Lastname: {
-        type: String,
-        required: [true, 'please input lastname']
-    },
+  Questions: [{
+    title: {},
+    description: {},
+  }],
 
-    email: {
-        type: String,
-        unique: true,
-        required: [true, 'please input email'],
-        validate: [isEmail, 'please enter a valid email address']
-    },
+  Followers: [],
 
-    password: {
-        type: String,
-        minlength: [8, 'password must be at least 8 characters']
-    },
+  Following: [Object],
 
-    token: {
-        type: String,
-        required: false
-    }
-})
+  Firstname: {},
 
-acc.pre('save', async function(next){
-const salt = await bcrypt.genSalt()
-this.password = await bcrypt.hash(this.password, salt)
-    next()
-})
+  Lastname: {},
 
-module.exports = mongoose.model('Module', acc)
+  email: {},
+
+  password: {},
+
+  token: {},
+});
+
+// eslint-disable-next-line func-names
+acc.pre('save', async function (next) {
+  const salt = await bcrypt.genSalt();
+  this.password = await bcrypt.hash(this.password, salt);
+  this.data.Profile.Lastname = this.Lastname;
+  this.data.Profile.Firstname = this.Lastname;
+  // eslint-disable-next-line no-underscore-dangle
+  this.data.Profile.id = this._id;
+  next();
+});
+
+const User = mongoose.model('Module', acc);
+module.exports = { User, acc };

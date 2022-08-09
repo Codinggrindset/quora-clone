@@ -1,23 +1,22 @@
-const express = require('express')
-const router = require('./routes')
-const connectdb = require('./connectdb')
-const cookieParser = require('cookie-parser')
-require('dotenv').config()
+const express = require('express');
+const errorHandlerMiddleware = require('./errHandler');
+const router = require('./routes');
+const connectDb = require('./connectDb');
+const asyncWrapper = require('./asyncWrapper');
+require('dotenv').config();
 
-const app = express()
+const app = express();
 
+app.use(express.json({ limit: '5mb' }));
+app.use('', router);
+app.use(errorHandlerMiddleware);
+app.use('*', (req, res) => {
+  res.status(404).send('Route does not exist');
+});
 
-app.use(express.json())
-app.use('', router)
-app.use(cookieParser())
+const startserver = asyncWrapper(async () => {
+  await connectDb(process.env.MONGOURI);
+  app.listen(process.env.PORT, () => console.log('connected to the server'));
+});
 
-const startserver = async() =>{
-try {
-    await connectdb(process.env.MONGOURI).then(()=> console.log('connected to the database'))
-app.listen(process.env.PORT, ()=>console.log('connected to the server'))    
-} catch (error) {
-    res.status(500).json(fatalerror(error))
-}
-}  
-
-startserver()
+startserver();
